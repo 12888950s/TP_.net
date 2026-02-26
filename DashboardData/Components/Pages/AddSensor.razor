@@ -1,0 +1,53 @@
+﻿@page "/add-sensor"
+@rendermode InteractiveServer
+@using DashboardData.Models
+@using DashboardData.Services
+@inject ISensorService SensorService
+@inject NavigationManager NavManager
+
+<h3>Ajouter un nouveau capteur</h3>
+
+<EditForm Model="@newSensor" OnValidSubmit="@HandleValidSubmit">
+    <div class="form-group mb-3">
+        <label for="name">Nom du capteur :</label>
+        <InputText id="name" class="form-control" @bind-Value="newSensor.Name" />
+        <ValidationMessage For="@(() => newSensor.Name)" />
+    </div>
+
+    <div class="form-group mb-3">
+        <label for="value">Valeur :</label>
+        <InputNumber id="value" class="form-control" @bind-Value="newSensor.Value" />
+        <ValidationMessage For="@(() => newSensor.Value)" />
+    </div>
+
+    <button type="submit" class="btn btn-success" disabled="@_isSubmitting">
+        @(_isSubmitting ? "Ajout en cours..." : "Ajouter le capteur")
+    </button>
+    <button type="button" class="btn btn-secondary" @onclick="Cancel">
+        Annuler
+    </button>
+</EditForm>
+
+@code {
+    private SensorData newSensor = new();
+    private bool _isSubmitting = false;
+
+    private async Task HandleValidSubmit()
+    {
+        _isSubmitting = true;
+
+        // Ajouter le nouveau capteur
+        SensorService.AddSensor(newSensor);
+
+        // Petit délai pour montrer le message d'ajout
+        await Task.Delay(500);
+
+        // Retourner au tableau de bord
+        NavManager.NavigateTo("/dashboard");
+    }
+
+    private void Cancel()
+    {
+        NavManager.NavigateTo("/dashboard");
+    }
+}

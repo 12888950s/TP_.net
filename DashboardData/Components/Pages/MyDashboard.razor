@@ -1,0 +1,60 @@
+﻿@page "/dashboard"
+@rendermode InteractiveServer
+@using DashboardData.Models
+@using DashboardData.Services
+@inject ISensorService SensorService
+@inject NavigationManager NavManager
+
+<h3>Tableau de Bord des Capteurs</h3>
+@* Bouton simple sans classe CSS *@
+<button @onclick="NavigateToAddSensor" style="padding: 10px; margin: 10px; background-color: blue; color: white;">
+    AJOUTER UN CAPTEUR (TEST)
+</button>
+
+@if (_isLoading)
+{
+    <p><em>Chargement des données...</em></p>
+}
+else
+{
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Nom du capteur</th>
+                <th>Valeur</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var sensor in _sensors)
+            {
+                <tr>
+                    <td>@sensor.Name</td>
+                    <td>@sensor.Value</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    private List<SensorData> _sensors = new();
+    private bool _isLoading = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadSensors();
+    }
+
+    private async Task LoadSensors()
+    {
+        _isLoading = true;
+        _sensors = await SensorService.GetSensorsAsync();
+        _isLoading = false;
+        StateHasChanged();
+    }
+
+    private void NavigateToAddSensor()
+    {
+        NavManager.NavigateTo("/add-sensor");
+    }
+}
